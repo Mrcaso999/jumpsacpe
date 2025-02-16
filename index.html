@@ -458,33 +458,33 @@
 
                 <h3>Thông tin cảm biến chi tiết</h3>
                 <h4>Gia tốc kế</h4>
-                ${info.detailedSensors.accelerometer.supported ? `
+                ${info.detailedSensors?.accelerometer?.supported ? `
                     <p>Trạng thái: Hoạt động</p>
-                    ${info.detailedSensors.accelerometer.data ? `
+                    ${info.detailedSensors.accelerometer.data && info.detailedSensors.accelerometer.data.length > 0 ? `
                         <p>Số mẫu: ${info.detailedSensors.accelerometer.data.length}</p>
                         <p>Dữ liệu mới nhất: 
-                            X: ${info.detailedSensors.accelerometer.data.slice(-1)[0].x.toFixed(3)},
-                            Y: ${info.detailedSensors.accelerometer.data.slice(-1)[0].y.toFixed(3)},
-                            Z: ${info.detailedSensors.accelerometer.data.slice(-1)[0].z.toFixed(3)}
+                            X: ${info.detailedSensors.accelerometer.data[info.detailedSensors.accelerometer.data.length - 1]?.x?.toFixed(3) || 'N/A'},
+                            Y: ${info.detailedSensors.accelerometer.data[info.detailedSensors.accelerometer.data.length - 1]?.y?.toFixed(3) || 'N/A'},
+                            Z: ${info.detailedSensors.accelerometer.data[info.detailedSensors.accelerometer.data.length - 1]?.z?.toFixed(3) || 'N/A'}
                         </p>
                     ` : '<p>Chưa có dữ liệu</p>'}
-                    ${info.detailedSensors.accelerometer.anomalies.map(anomaly => 
+                    ${info.detailedSensors.accelerometer.anomalies?.map(anomaly => 
                         `<p class="warning">⚠️ ${anomaly}</p>`
                     ).join('')}
                 ` : '<p>Không hỗ trợ</p>'}
 
                 <h4>Con quay hồi chuyển</h4>
-                ${info.detailedSensors.gyroscope.supported ? `
+                ${info.detailedSensors?.gyroscope?.supported ? `
                     <p>Trạng thái: Hoạt động</p>
-                    ${info.detailedSensors.gyroscope.data ? `
+                    ${info.detailedSensors.gyroscope.data && info.detailedSensors.gyroscope.data.length > 0 ? `
                         <p>Số mẫu: ${info.detailedSensors.gyroscope.data.length}</p>
                         <p>Dữ liệu mới nhất: 
-                            Alpha: ${info.detailedSensors.gyroscope.data.slice(-1)[0].alpha?.toFixed(3) || 'N/A'},
-                            Beta: ${info.detailedSensors.gyroscope.data.slice(-1)[0].beta?.toFixed(3) || 'N/A'},
-                            Gamma: ${info.detailedSensors.gyroscope.data.slice(-1)[0].gamma?.toFixed(3) || 'N/A'}
+                            Alpha: ${info.detailedSensors.gyroscope.data[info.detailedSensors.gyroscope.data.length - 1]?.alpha?.toFixed(3) || 'N/A'},
+                            Beta: ${info.detailedSensors.gyroscope.data[info.detailedSensors.gyroscope.data.length - 1]?.beta?.toFixed(3) || 'N/A'},
+                            Gamma: ${info.detailedSensors.gyroscope.data[info.detailedSensors.gyroscope.data.length - 1]?.gamma?.toFixed(3) || 'N/A'}
                         </p>
                     ` : '<p>Chưa có dữ liệu</p>'}
-                    ${info.detailedSensors.gyroscope.anomalies.map(anomaly => 
+                    ${info.detailedSensors.gyroscope.anomalies?.map(anomaly => 
                         `<p class="warning">⚠️ ${anomaly}</p>`
                     ).join('')}
                 ` : '<p>Không hỗ trợ</p>'}
