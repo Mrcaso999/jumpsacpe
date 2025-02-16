@@ -80,147 +80,28 @@
             return sensors;
         }
 
-        // Thêm các hàm kiểm tra fingerprint và bảo mật
-        async function getAdvancedFingerprint() {
-            const components = {
-                // Canvas fingerprint
-                canvas: await getCanvasFingerprint(),
-                
-                // WebGL fingerprint
-                webgl: await getWebGLFingerprint(),
-                
-                // Audio fingerprint
-                audio: await getAudioFingerprint(),
-                
-                // Font fingerprint
-                fonts: await getFontFingerprint(),
-                
-                // Hardware info
-                hardware: await getHardwareInfo(),
-                
-                // Browser behavior
-                behavior: getBrowserBehavior(),
-                
-                // Network fingerprint
-                network: await getNetworkFingerprint(),
-                
-                // Sensor patterns
-                sensors: await getSensorPatterns(),
-                
-                // System info
-                system: getSystemInfo()
-            };
-
-            return {
-                hash: await generateSecureHash(components),
-                components,
-                anomalies: detectFingerprint(components)
-            };
-        }
-
-        // Hàm kiểm tra canvas nâng cao
-        async function getCanvasFingerprint() {
+        // Nâng cao hàm lấy fingerprint
+        function getEnhancedFingerprint() {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-            canvas.width = 500;
+            canvas.width = 200;
             canvas.height = 200;
-            
-            // Test 1: Gradient phức tạp
+
+            // Vẽ text với gradient
             const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-            gradient.addColorStop(0, '#FF0000');
-            gradient.addColorStop(0.5, '#00FF00');
-            gradient.addColorStop(1, '#0000FF');
-            
-            // Test 2: Font và emoji rendering
+            gradient.addColorStop(0, '#f00');
+            gradient.addColorStop(0.5, '#0f0');
+            gradient.addColorStop(1, '#00f');
             ctx.fillStyle = gradient;
-            ctx.font = '20px Arial, sans-serif';
-            ctx.fillText('🌍 Fingerprint Test ⚡️', 10, 50);
+            ctx.font = '18px Arial';
+            ctx.fillText('Browser Fingerprint', 10, 50);
             
-            // Test 3: Hình học phức tạp
+            // Vẽ hình dạng
             ctx.beginPath();
             ctx.arc(100, 100, 50, 0, Math.PI * 2);
             ctx.stroke();
-            ctx.fill();
 
-            // Test 4: WebGL context
-            const gl = canvas.getContext('webgl');
-            if (gl) {
-                gl.clearColor(0.0, 0.0, 0.0, 1.0);
-                gl.clear(gl.COLOR_BUFFER_BIT);
-            }
-
-            return {
-                dataUrl: canvas.toDataURL(),
-                glSupport: !!gl,
-                params: {
-                    colorDepth: screen.colorDepth,
-                    pixelRatio: window.devicePixelRatio
-                }
-            };
-        }
-
-        // Hàm kiểm tra audio
-        async function getAudioFingerprint() {
-            try {
-                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioCtx.createOscillator();
-                const analyser = audioCtx.createAnalyser();
-                
-                oscillator.connect(analyser);
-                analyser.connect(audioCtx.destination);
-                
-                oscillator.type = 'triangle';
-                oscillator.frequency.setValueAtTime(440, audioCtx.currentTime);
-                
-                const dataArray = new Float32Array(analyser.frequencyBinCount);
-                analyser.getFloatFrequencyData(dataArray);
-                
-                return {
-                    supported: true,
-                    sampleRate: audioCtx.sampleRate,
-                    data: Array.from(dataArray.slice(0, 10))
-                };
-            } catch (e) {
-                return { supported: false };
-            }
-        }
-
-        // Hàm phát hiện bất thường
-        function detectFingerprint(components) {
-            const anomalies = [];
-            
-            // Kiểm tra canvas
-            if (!components.canvas.dataUrl || components.canvas.dataUrl === 'data:,') {
-                anomalies.push('Canvas bị chặn hoặc giả mạo');
-            }
-            
-            // Kiểm tra WebGL
-            if (!components.webgl.supported) {
-                anomalies.push('WebGL bị vô hiệu hóa');
-            }
-            
-            // Kiểm tra audio
-            if (!components.audio.supported) {
-                anomalies.push('Audio API bị chặn');
-            }
-            
-            // Kiểm tra fonts
-            if (components.fonts.length < 10) {
-                anomalies.push('Số lượng font bất thường');
-            }
-            
-            // Kiểm tra hardware
-            const hw = components.hardware;
-            if (hw.hardwareConcurrency > 32 || hw.hardwareConcurrency < 1) {
-                anomalies.push('Cấu hình CPU bất thường');
-            }
-            
-            // Kiểm tra network
-            if (components.network.proxy) {
-                anomalies.push('Phát hiện proxy/VPN');
-            }
-            
-            return anomalies;
+            return btoa(canvas.toDataURL());
         }
 
         // Nâng cao hàm kiểm tra bot
@@ -439,7 +320,7 @@
                 const hardware = await getHardwareInfo();
                 const battery = await getBatteryInfo();
                 const sensors = await getSensorInfo();
-                const fingerprint = await getAdvancedFingerprint();
+                const enhancedFingerprint = getEnhancedFingerprint();
                 const botCheck = checkEnhancedBot();
                 const referrerInfo = await getReferrerInfo();
                 const deviceAuthenticity = getDeviceAuthenticity();
@@ -497,7 +378,7 @@
                     timestamp: new Date().toISOString(),
 
                     // Bảo mật và bot
-                    fingerprint: fingerprint
+                    fingerprint: enhancedFingerprint
                 };
 
                 // Lấy IP
@@ -626,69 +507,25 @@ ${info.deviceAuthenticity.confidence > 70 ? '✅' : '⚠️'} Trạng thái: ${i
 📱 THÔNG TIN THIẾT BỊ
 ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
 • 🌐 IP: ${info.ip}
-• 💻 User-Agent: ${info.userAgent}
-• 🔑 Fingerprint: ${info.fingerprint}
+• 💻 Thiết bị: ${info.platform}
+• 🔑 ID: ${info.fingerprint.substring(0, 16)}...
 • 🌍 Khu vực: ${info.timezone}
 • 🕒 Thời gian: ${new Date().toLocaleString('vi-VN')}
 
 🛡️ KIỂM TRA BẢO MẪT
 ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
-• Webdriver: ${info.botIndicators.automation ? "⛔ PHÁT HIỆN" : "✅ An toàn"}
-• Giả lập: ${info.botIndicators.emulation ? "⛔ PHÁT HIỆN" : "✅ An toàn"}
-• Plugins: ${navigator.plugins.length} plugins
-• Languages: ${navigator.languages.join(', ')}
-• Platform: ${navigator.platform}
-• Vendor: ${navigator.vendor}
-• User-Agent Hash: ${await generateHash(info.userAgent)}
+• ${info.botIndicators.automation ? "⛔" : "✅"} Tự động hóa
+• ${info.botIndicators.emulation ? "⛔" : "✅"} Giả lập
+• ${navigator.plugins.length === 0 ? "⚠️" : "✅"} Plugins
+• ${navigator.languages.length === 0 ? "⚠️" : "✅"} Ngôn ngữ
 
-💻 THÔNG TIN PHẦN CỨNG
-▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
-• Màn hình: ${screen.width}x${screen.height}
-• RAM: ${navigator.deviceMemory || 'N/A'}GB
-• CPU Cores: ${navigator.hardwareConcurrency}
-• GPU: ${info.gpu}
-• Vendor: ${info.gpuVendor}
-• WebGL: ${info.webglVersion}
-• Max Texture: ${info.maxTextureSize}
-• Color Depth: ${screen.colorDepth}
-• Pixel Ratio: ${window.devicePixelRatio}
-
-🔋 THÔNG TIN PIN
-▔▔▔▔▔▔▔▔▔▔▔▔
-• Mức pin: ${info.battery ? info.battery.level + '%' : 'N/A'}
-• Trạng thái: ${info.battery ? (info.battery.charging ? 'Đang sạc' : 'Không sạc') : 'N/A'}
-• Thời gian sạc: ${info.battery ? (info.battery.chargingTime === Infinity ? 'N/A' : info.battery.chargingTime + 's') : 'N/A'}
-• Thời gian dùng: ${info.battery ? (info.battery.dischargingTime === Infinity ? 'N/A' : info.battery.dischargingTime + 's') : 'N/A'}
-
-📡 MẠNG & KẾT NỐI
-▔▔▔▔▔▔▔▔▔▔▔▔▔▔
-• Loại mạng: ${info.network.effectiveType || 'N/A'}
-• Tốc độ: ${info.network.downlink ? info.network.downlink + ' Mbps' : 'N/A'}
-• Độ trễ: ${info.network.rtt ? info.network.rtt + 'ms' : 'N/A'}
-• Tiết kiệm data: ${info.network.saveData ? "Bật" : "Tắt"}
-• WebRTC: ${navigator.mediaDevices ? "Có" : "Không"}
-• Bluetooth: ${navigator.bluetooth ? "Có" : "Không"}
-• USB: ${navigator.usb ? "Có" : "Không"}
-• Geolocation: ${navigator.geolocation ? "Có" : "Không"}
-
-📱 CẢM BIẾN & THIẾT BỊ
-▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
-• Gia tốc kế: ${info.sensors.accelerometer ? "Có" : "Không"}
-• Con quay hồi chuyển: ${info.sensors.gyroscope ? "Có" : "Không"}
-• La bàn: ${info.sensors.magnetometer ? "Có" : "Không"}
-• Cảm biến ánh sáng: ${info.sensors.ambient ? "Có" : "Không"}
-• Cảm ứng: ${navigator.maxTouchPoints > 0 ? "Có (" + navigator.maxTouchPoints + " điểm)" : "Không"}
-
-🌐 THÔNG TIN TRÌNH DUYỆT
-▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
-• Cookie: ${navigator.cookieEnabled ? "Bật" : "Tắt"}
-• Local Storage: ${window.localStorage ? "Có" : "Không"}
-• Session Storage: ${window.sessionStorage ? "Có" : "Không"}
-• IndexedDB: ${window.indexedDB ? "Có" : "Không"}
-• Service Worker: ${navigator.serviceWorker ? "Có" : "Không"}
-• Web Worker: ${window.Worker ? "Có" : "Không"}
-• WebSocket: ${window.WebSocket ? "Có" : "Không"}
-• WebAssembly: ${window.WebAssembly ? "Có" : "Không"}`;
+📊 THÔNG SỐ KỸ THUẬT
+▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
+• 🖥️ Màn hình: ${info.screenResolution}
+• 💾 RAM: ${info.deviceMemory || 'N/A'}GB
+• ⚡ CPU: ${info.hardwareConcurrency} cores
+• 📡 Mạng: ${info.network.effectiveType || 'N/A'}
+• 🔋 Pin: ${info.battery ? `${info.battery.level}% (${info.battery.charging ? 'Đang sạc' : 'Không sạc'})` : 'N/A'}`;
 
             // Tin nhắn phần cứng
             const hardwareMessage = `
