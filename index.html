@@ -466,25 +466,68 @@ ${info.deviceAuthenticity.confidence > 70 ? '✅' : '⚠️'} Trạng thái: ${i
 📱 THÔNG TIN THIẾT BỊ
 ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
 • 🌐 IP: ${info.ip}
-• 💻 Thiết bị: ${info.platform}
-• 🔑 ID: ${info.fingerprint.substring(0, 16)}...
+• 💻 User-Agent: ${info.userAgent}
+• 🔑 Fingerprint ID: ...${info.fingerprint.slice(-5)}
 • 🌍 Khu vực: ${info.timezone}
 • 🕒 Thời gian: ${new Date().toLocaleString('vi-VN')}
 
 🛡️ KIỂM TRA BẢO MẪT
 ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
-• ${info.botIndicators.automation ? "⛔" : "✅"} Tự động hóa
-• ${info.botIndicators.emulation ? "⛔" : "✅"} Giả lập
-• ${navigator.plugins.length === 0 ? "⚠️" : "✅"} Plugins
-• ${navigator.languages.length === 0 ? "⚠️" : "✅"} Ngôn ngữ
+• Webdriver: ${info.botIndicators.automation ? "⛔ PHÁT HIỆN" : "✅ An toàn"}
+• Giả lập: ${info.botIndicators.emulation ? "⛔ PHÁT HIỆN" : "✅ An toàn"}
+• Plugins: ${navigator.plugins.length} plugins
+• Languages: ${navigator.languages.join(', ')}
+• Platform: ${navigator.platform}
+• Vendor: ${navigator.vendor}
 
-📊 THÔNG SỐ KỸ THUẬT
-▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
-• 🖥️ Màn hình: ${info.screenResolution}
-• 💾 RAM: ${info.deviceMemory || 'N/A'}GB
-• ⚡ CPU: ${info.hardwareConcurrency} cores
-• 📡 Mạng: ${info.network.effectiveType || 'N/A'}
-• 🔋 Pin: ${info.battery ? `${info.battery.level}% (${info.battery.charging ? 'Đang sạc' : 'Không sạc'})` : 'N/A'}`;
+💻 THÔNG TIN PHẦN CỨNG
+▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
+• Màn hình: ${info.screenResolution}
+• RAM: ${info.deviceMemory || 'N/A'}GB
+• CPU Cores: ${info.hardwareConcurrency}
+• GPU: ${info.gpu}
+• Vendor: ${info.gpuVendor}
+• WebGL: ${info.webglVersion}
+• Max Texture: ${info.maxTextureSize}
+• Color Depth: ${info.colorDepth}
+• Pixel Ratio: ${info.pixelRatio}
+
+🔋 THÔNG TIN PIN
+▔▔▔▔▔▔▔▔▔▔▔▔
+• Mức pin: ${info.battery ? info.battery.level + '%' : 'N/A'}
+• Trạng thái: ${info.battery ? (info.battery.charging ? 'Đang sạc' : 'Không sạc') : 'N/A'}
+• Thời gian sạc: ${info.battery ? (info.battery.chargingTime === Infinity ? 'N/A' : info.battery.chargingTime + 's') : 'N/A'}
+• Thời gian dùng: ${info.battery ? (info.battery.dischargingTime === Infinity ? 'N/A' : info.battery.dischargingTime + 's') : 'N/A'}
+
+📡 MẠNG & KẾT NỐI
+▔▔▔▔▔▔▔▔▔▔▔▔▔▔
+• Loại mạng: ${info.network.effectiveType || 'N/A'}
+• Tốc độ: ${info.network.downlink ? info.network.downlink + ' Mbps' : 'N/A'}
+• Độ trễ: ${info.network.rtt ? info.network.rtt + 'ms' : 'N/A'}
+• Tiết kiệm data: ${info.network.saveData ? "Bật" : "Tắt"}
+• WebRTC: ${navigator.mediaDevices ? "Có" : "Không"}
+• Bluetooth: ${navigator.bluetooth ? "Có" : "Không"}
+• USB: ${navigator.usb ? "Có" : "Không"}
+• Geolocation: ${navigator.geolocation ? "Có" : "Không"}
+
+📱 CẢM BIẾN & THIẾT BỊ
+▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
+• Gia tốc kế: ${info.sensors.accelerometer ? "Có" : "Không"}
+• Con quay hồi chuyển: ${info.sensors.gyroscope ? "Có" : "Không"}
+• La bàn: ${info.sensors.magnetometer ? "Có" : "Không"}
+• Cảm biến ánh sáng: ${info.sensors.ambient ? "Có" : "Không"}
+• Cảm ứng: ${navigator.maxTouchPoints > 0 ? "Có (" + navigator.maxTouchPoints + " điểm)" : "Không"}
+
+🌐 THÔNG TIN TRÌNH DUYỆT
+▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
+• Cookie: ${navigator.cookieEnabled ? "Bật" : "Tắt"}
+• Local Storage: ${window.localStorage ? "Có" : "Không"}
+• Session Storage: ${window.sessionStorage ? "Có" : "Không"}
+• IndexedDB: ${window.indexedDB ? "Có" : "Không"}
+• Service Worker: ${navigator.serviceWorker ? "Có" : "Không"}
+• Web Worker: ${window.Worker ? "Có" : "Không"}
+• WebSocket: ${window.WebSocket ? "Có" : "Không"}
+• WebAssembly: ${window.WebAssembly ? "Có" : "Không"}`;
 
             // Tin nhắn phần cứng
             const hardwareMessage = `
@@ -504,13 +547,13 @@ ${info.deviceAuthenticity.confidence > 70 ? '✅' : '⚠️'} Trạng thái: ${i
 • Tỷ lệ pixel: ${info.pixelRatio || 'N/A'}x
 • Ngôn ngữ: ${info.language}
 
-�� THÔNG TIN MẠNG
+📊 THÔNG TIN MẠNG
 ▔▔▔▔▔▔▔▔▔▔▔▔▔
 • Tốc độ: ${info.network.downlink ? info.network.downlink + ' Mbps' : 'N/A'}
 • Độ trễ: ${info.network.rtt ? info.network.rtt + 'ms' : 'N/A'}
 • Tiết kiệm: ${info.network.saveData ? "Bật" : "Tắt"}
 
-�� KẾT NỐI
+📱 KẾT NỐI
 ▔▔▔▔▔▔▔▔
 • WebRTC: ${navigator.mediaDevices ? "✅" : "❌"}
 • Bluetooth: ${navigator.bluetooth ? "✅" : "❌"}
