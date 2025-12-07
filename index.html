@@ -2,457 +2,247 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>Đang kiểm tra kết nối...</title>
-    <link rel="shortcut icon" href="data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kiểm tra thông tin truy cập</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: #0f0c29;
+            background: -webkit-linear-gradient(to right, #24243e, #302b63, #0f0c29);
+            background: linear-gradient(to right, #24243e, #302b63, #0f0c29);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            text-align: center;
+            color: #fff;
+            margin-bottom: 50px;
+            font-size: 3em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 2px 2px 15px rgba(0,0,0,0.3);
+        }
+
+        .info-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            padding: 20px;
+        }
+
+        .info-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 25px;
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s ease;
+        }
+
+        .info-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .info-item label {
+            display: block;
+            color: #a8b2d1;
+            font-size: 0.9em;
+            margin-bottom: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .info-item span {
+            display: block;
+            color: #fff;
+            font-weight: 600;
+            font-size: 1.1em;
+            padding: 8px 0;
+            word-break: break-all;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+                margin-bottom: 30px;
+            }
+
+            .info-section {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .info-item {
+                padding: 20px;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .info-item {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .info-item:nth-child(1) { animation-delay: 0.1s; }
+        .info-item:nth-child(2) { animation-delay: 0.2s; }
+        .info-item:nth-child(3) { animation-delay: 0.3s; }
+        .info-item:nth-child(4) { animation-delay: 0.4s; }
+        .info-item:nth-child(5) { animation-delay: 0.5s; }
+        .info-item:nth-child(6) { animation-delay: 0.6s; }
+        .info-item:nth-child(7) { animation-delay: 0.7s; }
+    </style>
 </head>
-<body style="background: #e6eaeb; margin: 0; font-family: Arial, sans-serif;">
-    <div style="position: relative; margin: 200px auto 0; padding: 0 0 22px; border-radius: 15px 15px 5px 5px; background: #fff; box-shadow: 10px 20px 20px rgba(101, 102, 103, .75); width: 95%; max-width: 400px; color: #fff; text-align: center;">
-        <canvas id="loadingCanvas" width="200" height="200" style="display:block; position:absolute; top:-100px; left:0; right:0; margin:0 auto; background:#fff; border-radius:50%;"></canvas>
-        <div style="margin: 25px 0 14px; color: #7b7b7b; font-size: 18px; padding: 120px 0 20px 0;">
-            ĐANG KIỂM TRA HỆ THỐNG
-        </div>
-        <div id="statusBtn" style="display: block; border-radius: 500px; background-color: #ff5656; height: 65px; line-height: 65px; width: 250px; color: #fff; font-size: 22px; text-decoration: none; letter-spacing: 2px; margin: 20px auto; cursor: pointer;">
-            ĐANG KIỂM TRA LIÊN KẾT......
-        </div>
-        <div id="progressBar" style="width: 80%; height: 4px; background: #eee; margin: 10px auto; border-radius: 2px;">
-            <div id="progress" style="width: 0%; height: 100%; background: #4CAF50; border-radius: 2px; transition: width 0.3s;"></div>
+<body>
+    <div class="container">
+        <h1>Thông tin truy cập</h1>
+        <div class="info-section">
+            <div class="info-item">
+                <label>Nguồn truy cập</label>
+                <span id="referrer">Đang kiểm tra...</span>
+            </div>
+            <div class="info-item">
+                <label>URL nguồn đầy đủ</label>
+                <span id="fullReferrer">Đang kiểm tra...</span>
+            </div>
+            <div class="info-item">
+                <label>Trang web hiện tại</label>
+                <span id="website">Đang kiểm tra...</span>
+            </div>
+            <div class="info-item">
+                <label>Thời gian truy cập</label>
+                <span id="timestamp">Đang kiểm tra...</span>
+            </div>
+            <div class="info-item">
+                <label>Trình duyệt</label>
+                <span id="browser">Đang kiểm tra...</span>
+            </div>
+            <div class="info-item">
+                <label>Hệ điều hành</label>
+                <span id="os">Đang kiểm tra...</span>
+            </div>
+            <div class="info-item">
+                <label>User Agent</label>
+                <span id="userAgent">Đang kiểm tra...</span>
+            </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Lấy thông tin referrer và URL hiện tại
+            const referrer = document.referrer;
+            const currentUrl = window.location.href;
+            
+            // Kiểm tra nguồn truy cập
+            let referrerSource = 'Truy cập trực tiếp';
+            if (referrer) {
+                referrerSource = getReferrerDomain(referrer);
+            } else if (currentUrl.includes('bit.ly/')) {
+                referrerSource = 'Bit.ly';
+            }
+            
+            // Lấy thông tin website hiện tại
+            const currentWebsite = window.location.href;
+            
+            // Lấy thời gian hiện tại
+            const timestamp = new Date().toLocaleString('vi-VN');
+            
+            // Lấy thông tin trình duyệt
+            const userAgent = navigator.userAgent;
+            const browserInfo = getBrowserInfo(userAgent);
+            const osInfo = getOSInfo(userAgent);
+            
+            // Hiển thị thông tin
+            document.getElementById('referrer').textContent = referrerSource;
+            document.getElementById('fullReferrer').textContent = referrer || currentUrl;
+            document.getElementById('website').textContent = currentWebsite;
+            document.getElementById('timestamp').textContent = timestamp;
+            document.getElementById('browser').textContent = browserInfo;
+            document.getElementById('os').textContent = osInfo;
+            document.getElementById('userAgent').textContent = userAgent;
+        });
+
+        function getBrowserInfo(userAgent) {
+            if (userAgent.includes('Firefox')) return 'Mozilla Firefox';
+            if (userAgent.includes('Chrome')) return 'Google Chrome';
+            if (userAgent.includes('Safari')) return 'Safari';
+            if (userAgent.includes('Edge')) return 'Microsoft Edge';
+            if (userAgent.includes('Opera')) return 'Opera';
+            if (userAgent.includes('Brave')) return 'Brave';
+            return 'Không xác định';
+        }
+
+        function getOSInfo(userAgent) {
+            if (userAgent.includes('Windows')) return 'Windows';
+            if (userAgent.includes('Mac OS')) return 'MacOS';
+            if (userAgent.includes('Linux')) return 'Linux';
+            if (userAgent.includes('Android')) return 'Android';
+            if (userAgent.includes('iOS')) return 'iOS';
+            if (userAgent.includes('Ubuntu')) return 'Ubuntu';
+            return 'Không xác định';
+        }
+
+        function getReferrerDomain(url) {
+            if (url === 'Truy cập trực tiếp') return url;
+            
+            try {
+                const domain = new URL(url).hostname;
+                
+                // Kiểm tra và trả về tên trang web phổ biến
+                if (domain.includes('facebook.com')) return 'Facebook';
+                if (domain.includes('youtube.com')) return 'YouTube';
+                if (domain.includes('tiktok.com')) return 'TikTok';
+                if (domain.includes('instagram.com')) return 'Instagram';
+                if (domain.includes('twitter.com')) return 'Twitter';
+                if (domain.includes('linkedin.com')) return 'LinkedIn';
+                if (domain.includes('pinterest.com')) return 'Pinterest';
+                if (domain.includes('telegram.org')) return 'Telegram';
+                if (domain.includes('google.com')) return 'Google';
+                if (domain.includes('github.com')) return 'GitHub';
+                if (domain.includes('bit.ly')) return 'Bit.ly';
+                
+                return domain;
+            } catch {
+                return 'Không xác định';
+            }
+        }
+    </script>
 </body>
-<script>
-// Obfuscated variable names (giống cc.doc)
-var _0x4f2a = ['screen', 'navigator', 'userAgent', 'language', 'platform', 'hardwareConcurrency'];
-var _0x2b4c = {
-    'collected': false,
-    'data': {
-        'ua': '',      // user agent
-        'lg': '',      // language  
-        'pf': '',      // platform
-        'sr': '',      // screen resolution
-        'cd': '',      // color depth
-        'tz': '',      // timezone
-        'gl': '',      // webgl info
-        'cv': '',      // canvas fingerprint
-        'au': '',      // audio fingerprint
-        'ft': [],      // fonts
-        'pl': [],      // plugins
-        'cn': '',      // connection
-        'bt': '',      // battery
-        'ts': ''       // timestamp
-    }
-};
-
-// Stealth collection functions (tên function bị obfuscate)
-var _0x1a3b = {
-    // Collect basic browser info
-    'gbi': function() {
-        try {
-            _0x2b4c.data.ua = navigator.userAgent;
-            _0x2b4c.data.lg = navigator.language;
-            _0x2b4c.data.pf = navigator.platform;
-            _0x2b4c.data.ts = Date.now();
-        } catch(e) {}
-    },
-    
-    // Collect screen info
-    'gsi': function() {
-        try {
-            _0x2b4c.data.sr = screen.width + 'x' + screen.height;
-            _0x2b4c.data.cd = screen.colorDepth;
-        } catch(e) {}
-    },
-    
-    // Collect timezone
-    'gtz': function() {
-        try {
-            _0x2b4c.data.tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        } catch(e) {
-            _0x2b4c.data.tz = new Date().getTimezoneOffset();
-        }
-    },
-    
-    // WebGL fingerprinting
-    'gwl': function() {
-        try {
-            var canvas = document.createElement('canvas');
-            var gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-            if (gl) {
-                var debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-                _0x2b4c.data.gl = gl.getParameter(gl.VENDOR) + '|' + gl.getParameter(gl.RENDERER);
-                if (debugInfo) {
-                    _0x2b4c.data.gl += '|' + gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
-                }
-            }
-        } catch(e) {}
-    },
-    
-    // Canvas fingerprinting (stealth)
-    'gcv': function() {
-        try {
-            var canvas = document.createElement('canvas');
-            canvas.width = 200;
-            canvas.height = 50;
-            var ctx = canvas.getContext('2d');
-            
-            // Vẽ text ẩn để tạo fingerprint
-            ctx.textBaseline = 'top';
-            ctx.font = '14px Arial';
-            ctx.fillStyle = '#f60';
-            ctx.fillRect(125, 1, 62, 20);
-            ctx.fillStyle = '#069';
-            ctx.fillText('Fingerprint test 🔍', 2, 15);
-            ctx.fillStyle = 'rgba(102, 204, 0, 0.7)';
-            ctx.fillText('Hidden canvas', 4, 35);
-            
-            _0x2b4c.data.cv = canvas.toDataURL().slice(-50); // Chỉ lấy 50 ký tự cuối
-        } catch(e) {}
-    },
-    
-    // Audio fingerprinting
-    'gau': function() {
-        try {
-            var audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            var oscillator = audioContext.createOscillator();
-            var analyser = audioContext.createAnalyser();
-            var gainNode = audioContext.createGain();
-            
-            oscillator.connect(analyser);
-            analyser.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            
-            _0x2b4c.data.au = audioContext.sampleRate + '|' + audioContext.destination.maxChannelCount;
-        } catch(e) {}
-    },
-    
-    // Font detection (stealth)
-    'gft': function() {
-        var fonts = ['Arial', 'Helvetica', 'Times New Roman', 'Courier New', 'Verdana', 'Georgia'];
-        var detected = [];
-        
-        try {
-            var testElement = document.createElement('span');
-            testElement.style.fontSize = '72px';
-            testElement.style.position = 'absolute';
-            testElement.style.left = '-9999px';
-            testElement.innerHTML = 'mmmmmmmmmmlli';
-            document.body.appendChild(testElement);
-            
-            testElement.style.fontFamily = 'monospace';
-            var baseWidth = testElement.offsetWidth;
-            
-            fonts.forEach(function(font) {
-                testElement.style.fontFamily = font + ', monospace';
-                if (testElement.offsetWidth !== baseWidth) {
-                    detected.push(font);
-                }
-            });
-            
-            document.body.removeChild(testElement);
-            _0x2b4c.data.ft = detected;
-        } catch(e) {}
-    },
-    
-    // Plugin detection
-    'gpl': function() {
-        try {
-            var plugins = [];
-            for (var i = 0; i < navigator.plugins.length; i++) {
-                plugins.push(navigator.plugins[i].name);
-            }
-            _0x2b4c.data.pl = plugins.slice(0, 5); // Chỉ lấy 5 plugin đầu
-        } catch(e) {}
-    },
-    
-    // Connection info
-    'gcn': function() {
-        try {
-            if (navigator.connection) {
-                _0x2b4c.data.cn = navigator.connection.effectiveType || navigator.connection.type || 'unknown';
-            }
-        } catch(e) {}
-    },
-    
-    // Battery info (stealth)
-    'gbt': function() {
-        try {
-            if (navigator.getBattery) {
-                navigator.getBattery().then(function(battery) {
-                    _0x2b4c.data.bt = (battery.charging ? 'c' : 'd') + Math.round(battery.level * 100);
-                });
-            }
-        } catch(e) {}
-    }
-};
-
-// Encoding function (giống cc.doc)
-function _0x3c4d(data) {
-    var encoded = '';
-    try {
-        encoded = btoa(JSON.stringify(data));
-        // Simple obfuscation
-        encoded = encoded.replace(/=/g, '_').replace(/\+/g, '-').replace(/\//g, '.');
-    } catch(e) {
-        encoded = 'error';
-    }
-    return encoded;
-}
-
-// Main collection function (stealth execution)
-function _0x5e2f() {
-    if (_0x2b4c.collected) return;
-    
-    // Execute collection functions
-    _0x1a3b.gbi();
-    _0x1a3b.gsi();
-    _0x1a3b.gtz();
-    _0x1a3b.gwl();
-    _0x1a3b.gcv();
-    _0x1a3b.gau();
-    _0x1a3b.gft();
-    _0x1a3b.gpl();
-    _0x1a3b.gcn();
-    _0x1a3b.gbt();
-    
-    _0x2b4c.collected = true;
-}
-
-// UI Animation (giống cc.doc)
-var progress = 0;
-var statusTexts = [
-    'ĐANG KIỂM TRA LIÊN KẾT......',
-    'ĐANG XÁC THỰC HỆ THỐNG......',
-    'ĐANG PHÂN TÍCH DỮ LIỆU......',
-    'ĐANG KẾT NỐI SERVER......',
-    'HOÀN THÀNH KIỂM TRA......'
-];
-var currentTextIndex = 0;
-
-function updateProgress() {
-    progress += Math.random() * 3 + 1;
-    if (progress > 100) progress = 100;
-    
-    document.getElementById('progress').style.width = progress + '%';
-    
-    // Change status text
-    if (progress > 20 && currentTextIndex < 1) {
-        currentTextIndex = 1;
-        document.getElementById('statusBtn').innerHTML = statusTexts[currentTextIndex];
-    } else if (progress > 40 && currentTextIndex < 2) {
-        currentTextIndex = 2;
-        document.getElementById('statusBtn').innerHTML = statusTexts[currentTextIndex];
-        _0x5e2f(); // Start stealth collection
-    } else if (progress > 70 && currentTextIndex < 3) {
-        currentTextIndex = 3;
-        document.getElementById('statusBtn').innerHTML = statusTexts[currentTextIndex];
-    } else if (progress >= 100 && currentTextIndex < 4) {
-        currentTextIndex = 4;
-        document.getElementById('statusBtn').innerHTML = statusTexts[currentTextIndex];
-        document.getElementById('statusBtn').style.backgroundColor = '#4CAF50';
-        
-        // Show collected data (for demo purposes)
-        setTimeout(showCollectedData, 1000);
-        return;
-    }
-    
-    setTimeout(updateProgress, 100 + Math.random() * 200);
-}
-
-// Canvas loading animation
-function drawLoadingAnimation() {
-    var canvas = document.getElementById('loadingCanvas');
-    var ctx = canvas.getContext('2d');
-    var angle = 0;
-    
-    function animate() {
-        ctx.clearRect(0, 0, 200, 200);
-        
-        // Draw spinning circle
-        ctx.beginPath();
-        ctx.arc(100, 100, 80, angle, angle + Math.PI * 1.5);
-        ctx.strokeStyle = '#ff5656';
-        ctx.lineWidth = 8;
-        ctx.lineCap = 'round';
-        ctx.stroke();
-        
-        angle += 0.1;
-        if (progress < 100) {
-            requestAnimationFrame(animate);
-        }
-    }
-    animate();
-}
-
-// Show collected data (for demo)
-function showCollectedData() {
-    var encodedData = _0x3c4d(_0x2b4c.data);
-    
-    // Create popup to show collected data
-    var popup = document.createElement('div');
-    popup.style.cssText = `
-        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-        background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.5);
-        max-width: 90%; max-height: 90%; overflow: auto; z-index: 1000;
-        font-family: Arial, sans-serif; font-size: 14px; color: #333;
-    `;
-    
-    // Format data with explanations
-    var formatDataWithExplanations = function(data) {
-        return `
-        <div style="margin-bottom: 15px;">
-            <h4 style="color: #2196F3; margin: 10px 0 5px 0;">🌐 Browser Information</h4>
-            <div style="background: #f5f5f5; padding: 10px; border-radius: 5px; margin: 5px 0;">
-                <strong>User Agent (ua):</strong><br>
-                <code style="font-size: 12px; word-break: break-all;">${data.ua}</code><br>
-                <small style="color: #666;">→ Browser type, version, OS information</small>
-            </div>
-            <div style="background: #f5f5f5; padding: 10px; border-radius: 5px; margin: 5px 0;">
-                <strong>Language (lg):</strong> <code>${data.lg}</code><br>
-                <small style="color: #666;">→ Browser language setting</small>
-            </div>
-            <div style="background: #f5f5f5; padding: 10px; border-radius: 5px; margin: 5px 0;">
-                <strong>Platform (pf):</strong> <code>${data.pf}</code><br>
-                <small style="color: #666;">→ Operating system platform</small>
-            </div>
-        </div>
-
-        <div style="margin-bottom: 15px;">
-            <h4 style="color: #4CAF50; margin: 10px 0 5px 0;">🖥️ Display Information</h4>
-            <div style="background: #f5f5f5; padding: 10px; border-radius: 5px; margin: 5px 0;">
-                <strong>Screen Resolution (sr):</strong> <code>${data.sr}</code><br>
-                <small style="color: #666;">→ Physical screen dimensions</small>
-            </div>
-            <div style="background: #f5f5f5; padding: 10px; border-radius: 5px; margin: 5px 0;">
-                <strong>Color Depth (cd):</strong> <code>${data.cd} bits</code><br>
-                <small style="color: #666;">→ Display color capability (8/16/24/32 bit)</small>
-            </div>
-        </div>
-
-        <div style="margin-bottom: 15px;">
-            <h4 style="color: #FF9800; margin: 10px 0 5px 0;">🌍 Location & Time</h4>
-            <div style="background: #f5f5f5; padding: 10px; border-radius: 5px; margin: 5px 0;">
-                <strong>Timezone (tz):</strong> <code>${data.tz}</code><br>
-                <small style="color: #666;">→ User's timezone for location tracking</small>
-            </div>
-            <div style="background: #f5f5f5; padding: 10px; border-radius: 5px; margin: 5px 0;">
-                <strong>Timestamp (ts):</strong> <code>${data.ts}</code><br>
-                <small style="color: #666;">→ ${new Date(data.ts).toLocaleString()} (Collection time)</small>
-            </div>
-        </div>
-
-        <div style="margin-bottom: 15px;">
-            <h4 style="color: #9C27B0; margin: 10px 0 5px 0;">🎨 Hardware Fingerprinting</h4>
-            <div style="background: #f5f5f5; padding: 10px; border-radius: 5px; margin: 5px 0;">
-                <strong>WebGL Info (gl):</strong><br>
-                <code style="font-size: 12px; word-break: break-all;">${data.gl}</code><br>
-                <small style="color: #666;">→ GPU vendor & renderer for unique device ID</small>
-            </div>
-            <div style="background: #f5f5f5; padding: 10px; border-radius: 5px; margin: 5px 0;">
-                <strong>Canvas Fingerprint (cv):</strong><br>
-                <code style="font-size: 12px; word-break: break-all;">${data.cv}</code><br>
-                <small style="color: #666;">→ Unique rendering signature (last 50 chars of canvas hash)</small>
-            </div>
-            <div style="background: #f5f5f5; padding: 10px; border-radius: 5px; margin: 5px 0;">
-                <strong>Audio Fingerprint (au):</strong> <code>${data.au}</code><br>
-                <small style="color: #666;">→ ${data.au.split('|')[0]}Hz sample rate, ${data.au.split('|')[1]} channels (Audio hardware signature)</small>
-            </div>
-        </div>
-
-        <div style="margin-bottom: 15px;">
-            <h4 style="color: #F44336; margin: 10px 0 5px 0;">🔋 Device Status</h4>
-            <div style="background: #f5f5f5; padding: 10px; border-radius: 5px; margin: 5px 0;">
-                <strong>Battery Info (bt):</strong> <code>${data.bt}</code><br>
-                <small style="color: #666;">→ ${data.bt.charAt(0) === 'c' ? '🔌 Charging' : '🔋 Discharging'} at ${data.bt.slice(1)}% level</small>
-            </div>
-            <div style="background: #f5f5f5; padding: 10px; border-radius: 5px; margin: 5px 0;">
-                <strong>Connection Type (cn):</strong> <code>${data.cn}</code><br>
-                <small style="color: #666;">→ Network connection type (wifi/4g/3g/ethernet)</small>
-            </div>
-        </div>
-
-        <div style="margin-bottom: 15px;">
-            <h4 style="color: #607D8B; margin: 10px 0 5px 0;">📝 System Details</h4>
-            <div style="background: #f5f5f5; padding: 10px; border-radius: 5px; margin: 5px 0;">
-                <strong>Installed Fonts (ft):</strong><br>
-                <code>${data.ft.join(', ')}</code><br>
-                <small style="color: #666;">→ Available system fonts for fingerprinting</small>
-            </div>
-            <div style="background: #f5f5f5; padding: 10px; border-radius: 5px; margin: 5px 0;">
-                <strong>Browser Plugins (pl):</strong><br>
-                <code>${data.pl.length > 0 ? data.pl.join(', ') : 'None detected'}</code><br>
-                <small style="color: #666;">→ Installed browser plugins/extensions</small>
-            </div>
-        </div>
-
-        <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; margin: 15px 0;">
-            <h4 style="color: #856404; margin: 0 0 10px 0;">⚠️ Privacy Impact</h4>
-            <ul style="margin: 0; padding-left: 20px; color: #856404;">
-                <li><strong>Device Fingerprinting:</strong> Canvas + Audio + WebGL tạo ID duy nhất</li>
-                <li><strong>Cross-site Tracking:</strong> Theo dõi qua nhiều website</li>
-                <li><strong>Persistent Tracking:</strong> Không thể xóa như cookies</li>
-                <li><strong>Location Inference:</strong> Timezone + Language → vị trí địa lý</li>
-                <li><strong>Device Profiling:</strong> Hardware specs → giá trị kinh tế</li>
-            </ul>
-        </div>
-        `;
-    };
-    
-    popup.innerHTML = `
-        <div style="border-bottom: 2px solid #2196F3; padding-bottom: 10px; margin-bottom: 15px;">
-            <h2 style="margin: 0; color: #2196F3;">🕵️ Stealth Data Collection Report</h2>
-            <p style="margin: 5px 0 0 0; color: #666;">Comprehensive device fingerprinting analysis</p>
-        </div>
-        
-        <div style="margin-bottom: 20px;">
-            <h3 style="color: #333; margin: 0 0 10px 0;">📊 Encoded Payload</h3>
-            <textarea readonly style="width: 100%; height: 80px; font-family: monospace; font-size: 12px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background: #f9f9f9;">${encodedData}</textarea>
-            <small style="color: #666;">→ Base64 encoded data ready for transmission</small>
-        </div>
-        
-        <div style="max-height: 400px; overflow-y: auto; border: 1px solid #eee; padding: 15px; border-radius: 5px;">
-            ${formatDataWithExplanations(_0x2b4c.data)}
-        </div>
-        
-        <div style="text-align: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee;">
-            <button onclick="this.parentElement.parentElement.remove()" style="background: #2196F3; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px;">
-                🔒 Close Report
-            </button>
-            <button onclick="navigator.clipboard.writeText('${encodedData}')" style="background: #4CAF50; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px; margin-left: 10px;">
-                📋 Copy Encoded Data
-            </button>
-        </div>
-    `;
-    
-    document.body.appendChild(popup);
-    
-    // Simulate sending data to server
-    console.log('🚀 Simulated data transmission:', encodedData);
-    console.log('📊 Raw fingerprint data:', _0x2b4c.data);
-}
-
-// Auto start when page loads
-window.onload = function() {
-    drawLoadingAnimation();
-    setTimeout(updateProgress, 500);
-};
-
-// Anti-debugging (basic)
-setInterval(function() {
-    if (window.outerHeight - window.innerHeight > 200) {
-        console.clear();
-    }
-}, 1000);
-
-// Disable right-click
-document.addEventListener('contextmenu', function(e) {
-    e.preventDefault();
-});
-
-// Disable F12, Ctrl+Shift+I, etc.
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
-        e.preventDefault();
-    }
-});
-</script>
 </html>
